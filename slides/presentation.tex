@@ -1,0 +1,289 @@
+\documentclass{beamer}
+\usepackage{beamerthemesplit}
+\usepackage{wrapfig}
+\usetheme{SPbGU}
+\usepackage{pdfpages}
+\usepackage{amsmath}
+\usepackage{cmap} 
+\usepackage[T2A]{fontenc} 
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{indentfirst}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{multirow}
+\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{listings}
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{multicol}
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\newcommand{\miniKanren}{\texttt{miniKanren}}
+\newcommand{\ocaml}{\texttt{OCaml}}
+\newcommand{\mediKanren}{\texttt{mediKanren}}
+
+\usepackage{epstopdf}
+\usepackage{forest}
+\usetikzlibrary{shapes,arrows}
+\usepackage{fancyvrb}
+\newtheorem{rutheorem}{Theorem}
+\beamertemplatenavigationsymbolsempty
+\setbeamertemplate{itemize items}[circle]
+
+\lstdefinelanguage{ocaml}{
+%keywords={fresh, let, begin, end, in, match, type, and, fun, function, try, with, when, class, 
+%object, method, of, rec, %repeat, 
+%until, while, not, do, done, as, val, inherit, 
+%new, module, sig, deriving, datatype, struct, if, then, else, open, private, virtual, ostap},
+sensitive=true,
+basicstyle=\small,
+commentstyle=\small\itshape\ttfamily,
+keywordstyle=\ttfamily\underbar,
+identifierstyle=\ttfamily,
+basewidth={0.5em,0.5em},
+columns=fixed,
+fontadjust=true,
+literate={->}{{$\;\;\to\;\;$}}1
+         {===}{{$\equiv$}}1
+         {&&&}{{$\wedge$}}1
+         {|||}{{$\vee$}}1
+         {fresh}{{$\exists$}}1,
+morecomment=[s]{(*}{*)}
+}
+
+\lstset{
+basicstyle=\small,
+identifierstyle=\ttfamily,
+keywordstyle=\bfseries,
+commentstyle=\scriptsize\rmfamily,
+basewidth={0.5em,0.5em},
+fontadjust=true,
+%escapechar=~,
+language=ocaml,
+mathescape=true,
+moredelim=[is][\bfseries]{[*}{*]}
+}
+
+\definecolor{SadRed}{RGB}{255, 180, 180}
+\definecolor{MehYellow}{RGB}{255, 255, 180}
+\definecolor{HappyGreen}{RGB}{180, 255, 180}
+
+\newmdenv[backgroundcolor=SadRed, innertopmargin=8,innerbottommargin=1, linecolor=SadRed]{badcode}
+
+\newmdenv[backgroundcolor=MehYellow, innertopmargin=8,innerbottommargin=1, linecolor=MehYellow]{mehcode}
+
+\newmdenv[backgroundcolor=HappyGreen, innertopmargin=8,innerbottommargin=1, linecolor=HappyGreen]{goodcode}
+
+\title[]{Реляционное программирование}
+\institute[]{
+Лаборатория языковых инструментов JetBrains
+}
+
+\author[Екатерина Вербицкая]{Екатерина Вербицкая}
+
+\date{13 декабря 2019}
+
+\definecolor{orange}{RGB}{179,36,31}
+
+\begin{document}
+{
+
+\begin{frame}
+      \begin{center} 
+        {\includegraphics[width=1.5cm]{pics/jb.png}} 
+      \end{center}
+
+  \titlepage
+\end{frame}
+}
+
+\begin{frame}[fragile]
+  \transwipe[direction=90]
+  \frametitle{Реляционное программирование}
+  
+  \begin{center}
+  Программа --- отношение 
+  \end{center}
+  
+\begin{center}
+$append^{o} \subseteq [A] \times [A] \times [A] $ 
+
+$$
+\begin{array}{lrcl}
+append^{o} & = & \{ & ([\,], [\,], [\,]); \\
+           &   &    & ([0], [\,], [0]); \\ 
+           &   &    & ([1], [\,], [1]); \\
+           &   &    & \dots \\
+           &   &    & ([\,], [0], [0]); \\
+           &   &    & \dots \\
+           &   &    & ([4], [2], [4, 2]); \\
+           &   &    & \dots \\
+           &   &    & ([4, 2], [13], [4, 2, 13]); \\
+           &   &    & \dots \\
+           &   & \}
+\end{array}
+$$ 
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \transwipe[direction=90]
+  \frametitle{Пример программы на \miniKanren}
+\begin{center}
+\begin{minipage}{4.5cm}
+\begin{lstlisting}[frame=single]  
+appendo x y z = 
+  (x === [] &&& z === y)
+  ||| (fresh h t r
+       ( x === h : t 
+       &&& z === h : r 
+       &&& appendo t y r))
+\end{lstlisting}
+\end{minipage}
+\end{center}
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \transwipe[direction=90]
+  \frametitle{Вычисление в реляционном программировании}
+  
+$$ 
+\begin{array}{lccccccl}
+append^o & [1] & [2, 3] & q         &\rightarrow& \{ &  [1, 2, 3] & \} \\
+append^o & [1] & q      & [1, 2, 3] &\rightarrow& \{ & [2, 3] & \} \\
+append^o & q   & [1]    & [2, 3]    &\rightarrow& \{ & & \}  \\
+\end{array}
+$$
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \transwipe[direction=90]
+  \frametitle{Вычисление в реляционном программировании}
+
+$$ 
+\begin{array}{rccl}
+append^o \, q \, p \, [1, 2] &\rightarrow& \{ &                \\
+                    &           &    & ([\,], [1,2]), \\
+                    &           &    & ([1], [2]), \\
+                    &           &    & ([1,2], [\,]) \\
+                    &           & \} \\
+                    &           & \\ 
+append^o \, q \, q \, [2, 4, 2, 4] &\rightarrow& \{ &  [2, 4] \quad \} \\
+                    &           & \\ 
+append^o \, q \, p \, r      &\rightarrow& \{ &  \\
+                    &           &    &([\,], \ \alpha, \ \alpha), \\
+                    &           &    & ([\alpha], \  \beta, \ (\alpha:\beta)) \\
+                    &           &    & ((\alpha : \beta),\  \gamma, \ (\alpha:(\beta:\gamma))) \\
+                    &           &    & \dots \\
+                    &           &    \}  \\
+\end{array}
+$$
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \transwipe[direction=90]
+  \frametitle{Направление вычислений}
+
+\begin{center}
+  $foo^o \subseteq A \times B$
+\end{center}
+
+\begin{itemize}
+  \item $foo^o \ \alpha \ q : A \rightarrow [B]$
+  \item $foo^o \ q \ \beta  : B \rightarrow [A]$ --- в ``обратном'' направлении
+  \item $foo^o \ q \ p      : () \rightarrow [(A \times B)] $ 
+\end{itemize}  
+ 
+\end{frame}
+
+\begin{frame}[fragile]
+  \transwipe[direction=90]
+  \frametitle{OCanren}
+
+\begin{itemize} 
+  \item Строго типизированный \miniKanren
+  \item Встроен в \ocaml
+  \item Синтаксическое расширение для описания программ 
+\end{itemize}
+ 
+ \vfill
+ 
+ \begin{center}
+ Демонстрация
+ \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \transwipe[direction=90]
+  \frametitle{Области применения}
+
+\begin{itemize} 
+  \item Синтез кода (обращение интерпретаторов, Barliman)
+  \item Поиск в базах знаний (\mediKanren)
+  \item Генерация тестовых сценариев
+  \item Статический анализ кода 
+  \item $\dots$
+\end{itemize}
+ 
+\end{frame}
+
+
+\begin{frame}[fragile]
+  \transwipe[direction=90]
+  \frametitle{Синтез кода}
+
+\begin{itemize} 
+  \item Реализуем интерпретатор на функциональном языке
+  \item Транслируем интерпретатор на \miniKanren
+  \item Задаем частично определенную входную программу и ее результат выполнения
+  \item Запускаем вычисление на \miniKanren
+  \item \miniKanren \ должен заполнить ``дырки'' в программе
+\end{itemize}
+ 
+ 
+ \vfill
+ \begin{center} 
+ Демонстрация
+ \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \transwipe[direction=90]
+  \frametitle{Как все это работает: демонстрация}
+\end{frame}
+
+\begin{frame}[fragile]
+  \transwipe[direction=90]
+  \frametitle{Трудности и открытые проблемы}
+  \begin{itemize}
+    \item Несмотря на полноту языка, завершения выполнения иногда можно не дождаться
+    \begin{itemize}
+      \item Если запросить больше ответов, чем существует 
+      \item Если пространство поиска слишком большое 
+    \end{itemize}
+    \item Чувствительность к порядку конъюнктов
+    \begin{itemize}
+      \item Как определить, что конъюнкты надо пересортировать? 
+    \end{itemize}
+    \item Как определять, что попали в бесконечную ветвь? 
+    \begin{itemize}
+      \item В общем случае задача неразрешима
+      \item Иногда помогает критерий Розплохоса 
+    \end{itemize}
+    \item При обращении интерпретаторов (синтез програм) пространство поиска \textbf{как правило} большое
+    \begin{itemize}
+      \item Специализация
+    \end{itemize}
+  \end{itemize}
+  
+\end{frame}
+
+\end{document}
